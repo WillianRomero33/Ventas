@@ -6,19 +6,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
-    protected $fillable = [
+    protected $table='users';
+     protected $fillable = [
         'name',
         'email',
         'password',
@@ -27,7 +29,7 @@ class User extends Authenticatable implements JWTSubject
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -46,7 +48,6 @@ class User extends Authenticatable implements JWTSubject
             'password' => 'hashed',
         ];
     }
-
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -54,6 +55,15 @@ class User extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'role' => $this->getRoleNames(), // Add user roles
+            'permissions' => $this->getAllPermissions()->pluck('name')
+        ];
+    }
+    // public function personaInformation(){
+    //     return $this->hasOne(MntPersonalInformationUserModel::class, 'user_id', 'id');
+    // }
+    public function clientes(){
+        return $this->hasMany(MntCliente::class,'id','user_id');
     }
 }

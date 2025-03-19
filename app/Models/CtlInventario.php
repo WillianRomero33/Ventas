@@ -15,9 +15,8 @@ class CtlInventario extends Model
     protected $fillable = [
         "product_id",
         "cantidad"
-    ];
-
-    public function productos(){
+    ];   
+        public function productos(){
         return $this->belongsTo(CtlProductos::class,"id","product_id");
     }
 

@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ctl_productos', function (Blueprint $table) {
+        Schema::create('mnt_pedidos', function (Blueprint $table) {
             $table->id();
+            $table->timestamp('fecha_pedido');
+            $table->boolean('estado')->default(true);
+            $table->double('total',7,2);
+            $table->foreignId('client_id')->constrained('id')->on('mnt_clientes')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ctl_productos');
+        Schema::dropIfExists('mnt_pedidos');
     }
 };

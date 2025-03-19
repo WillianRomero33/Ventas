@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('ctl_inventarios', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('product_id')->constrained('id')->on('ctl_productos')->onDelete('cascade')->onUpdate('cascade');
+            $table->integer('cantidad');
             $table->timestamps();
         });
     }

@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('mnt_detalle_pedidos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('pedido_id')->constrained('id')->on('mnt_pedidos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('producto_id')->constrained('id')->on('ctl_productos')->onDelete('cascade')->onUpdate('cascade');
+            $table->integer('cantidad');
+            $table->double('precio',7,2);
+            $table->double('sub_total',7,2);
             $table->timestamps();
         });
     }
