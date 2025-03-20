@@ -14,12 +14,12 @@ class CtlCategoria extends Model
     //
     use HasFactory, Notifiable, HasRoles;
 
-    protected $table = 'ctl_categoria';
+    protected $table = 'ctl_categorias';
     protected $fillable = [
         'nombre'
     ];
-
-    public function productos(){
-        return $this->belongsTo(CtlProductos::class,'id','product_id');
+    public function productos()
+    {
+        return $this->hasMany(CtlProductos::class, 'categoria_id', 'id');
     }
 }

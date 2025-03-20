@@ -4,8 +4,8 @@ use App\Http\Controllers\Api\MntPedidosController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\CtlCategoriaController;
 use App\Http\Controllers\Api\CtlProductosController;
-use App\Http\Controllers\api\MntClientesController;
 
+use App\Http\Controllers\Api\MntClientesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -61,4 +61,8 @@ Route::prefix('catalogo')->group(function(){
 Route::prefix('pedidos')->group(function(){
     Route::get('/',[MntPedidosController::class,'index']);
     Route::post('/',[MntPedidosController::class,'store']);
+});
+
+Route::prefix('clientes')->group(function () {
+    Route::post('/', [MntClientesController::class, 'store']);
 });

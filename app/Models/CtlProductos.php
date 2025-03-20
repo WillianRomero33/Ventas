@@ -19,8 +19,9 @@ class CtlProductos extends Model
         'categoria_id'
     ];
 
-    public function categoria(){
-        return $this->hasMany(CtlCategoria::class,'id','categoria_id');
+    public function categoria()
+    {
+        return $this->belongsTo(CtlCategoria::class, 'categoria_id', 'id');
     }
     public function inventario(){
         return $this->belongsTo(CtlInventario::class,'id','producto_id');
