@@ -1,20 +1,26 @@
 <?php
 
-namespace App\Http\Middleware\Middleware;
+namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
+use Spatie\Permission\Middlewares\RoleMiddleware;
+
+
 class RolMiddleware
 {
-    /**
+   /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @param  string  $role
+     * @return mixed
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, ...$roles)
     {
         $user = Auth::user();
 
@@ -29,6 +35,7 @@ class RolMiddleware
                 'error' => 'You do not have the required role(s): ' . implode(', ', $roles)
             ], 403);
         }
+
         return $next($request);
     }
 }

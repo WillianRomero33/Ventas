@@ -66,4 +66,9 @@ class User extends Authenticatable implements JWTSubject
     public function clientes(){
         return $this->hasMany(MntCliente::class,'id','user_id');
     }
+
+    public function hasAnyRole(array $roles)
+    {
+        return $this->hasRole($roles);
+    }
 }

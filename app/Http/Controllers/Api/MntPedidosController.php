@@ -20,7 +20,7 @@ class MntPedidosController extends Controller
 {
     try {
         // Obtener el usuario autenticado
-        $user = auth()->user();
+        $user = auth()->Auth::user();
 
         // filtrar por
         $categoriaId = $request->input('categoria_id');
