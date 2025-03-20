@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePedidoRequest;
 use App\Http\Response\ApiResponse;
+use App\Models\MntDetallePedido;
 use App\Models\MntDetallePedidos;
+use App\Models\MntPedido;
 use App\Models\MntPedidos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,19 +16,66 @@ use Illuminate\Support\Facades\Validator;
 class MntPedidosController extends Controller
 {
     //
-    public function index(){
-        try {
-            //code...
-            $pedidos = MntPedidos::with([
-                'detallePedido.producto.categoria',
-                'cliente'
-            ])->paginate(10);
-            return ApiResponse::success('Pedidos',200,$pedidos);
-        } catch (\Exception $e) {
-            //throw $th;
-            return ApiResponse::error('Error al traer los pedidos '.$e->getMessage(),422);
+    public function index(Request $request)
+{
+    try {
+        // Obtener el usuario autenticado
+        $user = auth()->user();
+
+        // filtrar por
+        $categoriaId = $request->input('categoria_id');
+        $productoId = $request->input('producto_id');
+
+        // query
+        $query = MntPedido::with([
+            'detallePedido.producto.categoria',
+            'cliente'
+        ])->where('client_id', $user->id); // pedidos del usuario logueado
+
+        if ($categoriaId) {
+            $query->whereHas('detallePedido.producto.categoria', function ($q) use ($categoriaId) {
+                $q->where('id', $categoriaId);
+            });
         }
+
+        // Filtrar por producto
+        if ($productoId) {
+            $query->whereHas('detallePedido.producto', function ($q) use ($productoId) {
+                $q->where('id', $productoId);
+            });
+        }
+
+
+        $pedidos = $query->paginate(10);
+
+        // Formatear la data 
+        $data = $pedidos->map(function ($pedido) {
+            return [
+                'id' => $pedido->id,
+                'fecha_pedido' => $pedido->fecha_pedido,
+                'estado' => $pedido->estado,
+                'total' => $pedido->total,
+                'cliente' => $pedido->cliente->nombre ?? 'Desconocido',
+                'productos' => $pedido->detallePedido->map(function ($detalle) {
+                    return [
+                        'producto' => $detalle->producto->nombre ?? 'Sin nombre',
+                        'categoria' => $detalle->producto->categoria->nombre ?? 'Sin categoría',
+                        'cantidad' => $detalle->cantidad,
+                        'sub_total' => $detalle->sub_total,
+                    ];
+                }),
+            ];
+        });
+
+        return ApiResponse::success('Pedidos filtrados', 200, $data);
+    } catch (\Exception $e) {
+        return ApiResponse::error('Error al traer los pedidos: ' . $e->getMessage(), 422);
     }
+}
+
+
+
+
     public function store(Request $request){
 
         $message = [
@@ -61,7 +110,7 @@ class MntPedidosController extends Controller
         try {
             DB::beginTransaction();
 
-            $pedido = new MntPedidos();
+            $pedido = new MntPedido();
             $pedido->fecha_pedido = $request->fecha_pedido; // Correct assignment
             $pedido->client_id = $request->client_id;
 
@@ -69,7 +118,7 @@ class MntPedidosController extends Controller
                 $totalF = 0;
                 // return $request->all();
                 foreach ($request->detalle as $d) {
-                    $detalle = new MntDetallePedidos();
+                    $detalle = new MntDetallePedido();
                     $detalle->pedido_id = $pedido->id;
                     $detalle->producto_id = $d['product_id'];
                     $detalle->cantidad = $d['cantidad'];

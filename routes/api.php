@@ -66,3 +66,14 @@ Route::prefix('pedidos')->group(function(){
 Route::prefix('clientes')->group(function () {
     Route::post('/', [MntClientesController::class, 'store']);
 });
+
+// Ruta de prueba
+Route::get('/test', function () {
+    return response()->json(['message' => 'Ruta de prueba funcionando']);
+});
+
+// Rutas para categorías y productos
+Route::prefix('catalogo')->group(function(){
+    Route::get('categoria', [CtlCategoriaController::class, 'index']);
+    Route::get('productos', [CtlProductosController::class, 'index']);
+});
